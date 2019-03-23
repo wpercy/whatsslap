@@ -30,6 +30,7 @@ class WhatsAppHookHandler(RequestHandler):
     def post(self):
         params = dict(urlparse.parse_qsl(self.request.body))
         body = params['Body']
+        print body
         match = re.search(r"(https?:\/\/open\.spotify\.com(\/[A-Za-z0-9\-\._~:\/\?#\[\]@!$&'\(\)\*\+,;\=]*)?)", body)
         if not match or 'open.spotify.com' not in match.group(0):
             self.write('no link')

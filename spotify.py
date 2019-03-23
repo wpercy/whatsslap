@@ -90,8 +90,6 @@ class Spotify(object):
         headers = {'Authorization': 'Bearer {}'.format(token)}
         _r = requests.post(url, data=data, headers=headers)
 
-        import ipdb;ipdb.set_trace()
-
         if _r.status_code == 401:
             creds = cls.exchange_refresh_token(SPOTIFY_REFRESH_TOKEN)
             _r = cls.spotify_post(url, creds['access_token'], data)
