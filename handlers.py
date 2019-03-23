@@ -3,6 +3,8 @@ import urlparse
 
 from tornado.web import RequestHandler
 
+from secrets import SPOTIFY_CREDENTIALS
+
 class IndexHandler(RequestHandler):
 
     def get(self):
@@ -15,6 +17,10 @@ class IndexHandler(RequestHandler):
 
 
 class WhatsAppHookHandler(RequestHandler):
+
+    def initialize(self, db=None, spotify=None):
+        self.db = db
+        self.spotify = spotify
 
     def get(self):
         self.set_status(405)
@@ -31,7 +37,32 @@ class WhatsAppHookHandler(RequestHandler):
             return
 
         url = match.group(0)
+        song_id = url.split('?')[0].split('/')[-1]
+        song_uri = 'spotify:track:{}'.format(song_id)
+
+        _j = self.spotify.add_song_to_whatsslap(SPOTIFY_CREDENTIALS['access_token'], song_uri)
 
         self.set_status(201)
         self.finish()
 
+
+class SpotifyAuthHandler(RequestHandler):
+
+    def initialize(self, spotify=None, **kwargs):
+        self.spotify = spotify
+
+    def get(self):
+        url = self.spotify.get_redirect_url()
+        self.redirect(url)
+
+
+class SpotifyCallbackHandler(RequestHandler):
+
+    def initialize(self, spotify=None, **kwargs):
+        self.spotify = spotify
+
+    def get(self):
+        code = self.get_argument('code')
+        creds = self.spotify.exchange_auth_code(code)
+
+        self.finish()
